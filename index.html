@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>我们的爱情纪念</title>
+    <style>
+        /* 全局动画曲线 */
+        :root {
+            --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+            --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+            --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #fce4ec, #f8bbd0);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            position: relative;
+            z-index: 0;
+            animation: fadeInUp 1s ease-out;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: pageEnter 1.2s var(--ease-out-expo) forwards;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            width: 300px;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        img:hover {
+            transform: scale(1.02);
+        }
+        .message {
+            margin: 25px 0;
+            font-size: 18px;
+            color: #424242;
+            line-height: 1.6;
+        }
+        .date {
+            font-size: 16px;
+            color: #757575;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        /* 樱花飘落的样式 */
+        .petal {
+            position: absolute;
+            border-radius: 150% 0 150% 0;
+            z-index: 1;
+            top: -10px;
+            transform-origin: center;
+            pointer-events: none;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            animation: falling linear forwards;
+        }
+        
+        @keyframes falling {
+            0% {
+                transform: translate3d(0, -10%, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate3d(100px, 150vh, 0) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式设计 */
+        @media screen and (max-width: 768px) {
+            .container {
+                width: 90%;
+                margin: 15px auto;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+
+            img {
+                width: 250px;
+            }
+            
+            .message {
+                font-size: 16px;
+            }
+
+            .time {
+                font-size: 18px;
+            }
+        }
+
+        /* 优化标题和整体样式 */
+        h1 {
+            color: #d81b60;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            animation: fadeInUp 1s ease-out 0.2s backwards;
+            transition: all 0.3s ease;
+        }
+
+        /* 优化计时器样式 */
+        .timer {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(252, 228, 236, 0.9), rgba(248, 187, 208, 0.9));
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(216, 27, 96, 0.1);
+            animation: fadeInUp 1s ease-out;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: timerEnter 1s var(--spring-bounce) forwards;
+            animation-delay: 0.5s;
+        }
+
+        .timer span {
+            color: #ad1457;
+            font-size: 18px;
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .time {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            color: #880e4f;
+        }
+
+        .time span {
+            display: inline-block;
+            min-width: 40px;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(216, 27, 96, 0.1);
+            margin: 0;
+            font-weight: 600;
+            color: #c2185b;
+            text-align: center;
+            animation: numberPulse 1s ease-out infinite;
+            transition: transform 0.4s var(--spring-bounce);
+        }
+
+        /* 为每个数字添加不同的动画延迟 */
+        .time span:nth-child(1) { animation-delay: 0s; }
+        .time span:nth-child(2) { animation-delay: 0.2s; }
+        .time span:nth-child(3) { animation-delay: 0.4s; }
+        .time span:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes numberPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* 添加光效果 */
+        .timer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: rotate(45deg) translateY(-100%); }
+            100% { transform: rotate(45deg) translateY(100%); }
+        }
+
+        /* 移动端适配 */
+        @media screen and (max-width: 768px) {
+            .timer {
+                padding: 20px;
+            }
+
+            .time {
+                font-size: 18px;
+                gap: 5px;
+            }
+
+            .time span {
+                min-width: 35px;
+                padding: 4px 8px;
+            }
+
+            @keyframes numberPulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        }
+
+        /* 添加照片卡片样式 */
+        .photo-card {
+            position: relative;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transform: translateY(30px);
+            opacity: 0;
+            animation: cardEnter 1.2s var(--ease-out-expo) forwards;
+            transition: all 0.8s var(--spring-bounce);
+        }
+
+        .photo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(216, 27, 96, 0.15);
+        }
+
+        /* 添加标题样式 */
+        .photo-card .title {
+            font-size: 20px;
+            color: #d81b60;
+            font-weight: 500;
+            margin: 0;
+            padding: 0 10px;
+        }
+
+        /* 修改图片样式 */
+        .photo-card img {
+            max-width: 100%;
+            height: auto;
+            width: 300px;
+            border-radius: 12px;
+            margin: 0 auto;
+            display: block;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.8s var(--spring-bounce);
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.03);
+        }
+
+        /* 修改说明文字样式 */
+        .photo-card .caption {
+            position: relative;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(252, 228, 236, 0.9), rgba(252, 228, 236, 0.3));
+            border-radius: 0 0 15px 15px;
+            text-align: center;
+        }
+
+        /* 响应式调整 */
+        @media screen and (max-width: 768px) {
+            .photo-card {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .photo-card .title {
+                font-size: 18px;
+            }
+
+            .photo-card img {
+                width: 250px;
+            }
+        }
+
+        /* 添加爱心装饰 */
+        .heart {
+            display: inline-block;
+            color: #d81b60;
+            animation: heartbeat 1.5s ease infinite;
+            margin: 0 5px;
+            font-size: 20px;
+            animation: heartbeat 1.5s ease infinite;
+            transform-origin: center;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.3); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.3); }
+            70% { transform: scale(1); }
+        }
+
+        /* 添加分隔线样式 */
+        .divider {
+            width: 80%;
+            margin: 30px auto;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #fce4ec, transparent);
+            position: relative;
+            overflow: hidden;
+            transform: scaleX(0);
+            animation: dividerEnter 1.5s var(--ease-out-expo) forwards;
+        }
+
+        @keyframes dividerEnter {
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(216, 27, 96, 0.2), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { left: 100%; }
+        }
+
+        /* 修改记忆卡片样式 */
+        .memory-card {
+            background: rgba(252, 228, 236, 0.7);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transform: translateY(30px);
+            opacity: 0;
+            animation: cardEnter 1.2s var(--ease-out-expo) forwards;
+            transition: all 0.8s var(--spring-bounce);
+        }
+
+        .memory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(216, 27, 96, 0.15);
+        }
+
+        .memory-card .message-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .memory-card .message {
+            position: relative;
+            display: inline-block;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-width: 100%;
+            line-height: 1.6;
+            font-size: 20px;
+            color: #d81b60;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            transition: all 1s var(--spring-bounce);
+            transition-delay: 0.2s;
+        }
+
+        .memory-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .memory-card.visible .message {
+            opacity: 1;
+        }
+
+        .memory-card.typing .message::after {
+            content: '|';
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1.2em;
+            width: 2px;
+            background: #d81b60;
+            animation: blink 0.75s step-end infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes blink {
+            from, to { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* 触摸动画效果 */
+        .memory-card:active {
+            transform: scale(0.98);
+            background: rgba(252, 228, 236, 0.7);
+        }
+
+        .memory-card.typed {
+            animation: softPulse 2s infinite;
+        }
+
+        @keyframes softPulse {
+            0% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.2); }
+            70% { box-shadow: 0 0 0 10px rgba(216, 27, 96, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(216, 27, 96, 0); }
+        }
+
+        /* 光效果优化 */
+        .memory-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            animation: shine 2s infinite;
+            animation-delay: 3s;
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            to {
+                left: 200%;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .memory-card .message {
+                font-size: 16px;
+            }
+        }
+
+        /* 优化轮播容器 */
+        .text-carousel {
+            height: clamp(120px, 25vh, 180px);
+            position: relative;
+            overflow: hidden;
+            background: rgba(252, 228, 236, 0.8);
+            border-radius: 15px;
+            padding: clamp(15px, 3vw, 25px);
+            margin: 30px 0;
+            box-shadow: 0 8px 32px rgba(216, 27, 96, 0.12);
+            cursor: grab;
+            -webkit-font-smoothing: antialiased;
+            transition: transform 0.8s var(--spring-bounce),
+                        box-shadow 0.8s var(--ease-out-expo);
+        }
+
+        /* 优化滑动容器 */
+        .slides-container {
+            position: absolute;
+            display: flex;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            transform: translateX(-100%);
+            will-change: transform;
+            transition: transform 1.2s var(--ease-out-expo);
+        }
+
+        /* 优化滑动项样式 */
+        .text-slide {
+            position: relative;
+            min-width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transform: scale(0.7);
+            opacity: 0;
+            transition: all 1.2s var(--spring-bounce);
+            will-change: transform, opacity;
+        }
+
+        .text-slide.active {
+            transform: scale(1.02);
+            opacity: 1;
+            transition-delay: 0.1s;
+        }
+
+        /* 优化文字容器样式 */
+        .text-slide .text-content {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: min(85%, 700px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(8px, 1.5vh, 15px);
+            padding: 0 clamp(10px, 2vw, 20px);
+            text-align: center;
+            transition: transform 1.2s var(--spring-bounce);
+        }
+
+        .text-slide.active .text-content {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* 优化文字动画 */
+        .text-slide .message,
+        .text-slide .sub-text {
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition-delay: 0s;
+        }
+
+        .text-slide.active .message {
+            transform: translateY(0);
+            opacity: 1;
+            transition-delay: 0.3s;
+        }
+
+        .text-slide.active .sub-text {
+            transform: translateY(0);
+            opacity: 1;
+            transition-delay: 0.4s;
+        }
+
+        /* 确保非活动状态的文字保持隐藏 */
+        .text-slide:not(.active) .message,
+        .text-slide:not(.active) .sub-text {
+            transition-delay: 0s;
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        /* 优化相邻幻灯片效果 */
+        .text-slide:not(.active) {
+            transform: scale(0.7) translateX(0);
+        }
+
+        .text-slide.active + .text-slide {
+            transform: scale(0.7) translateX(5%);
+        }
+
+        .text-slide.active ~ .text-slide:not(.active + .text-slide) {
+            transform: scale(0.7) translateX(10%);
+        }
+
+        /* 优化滑动容器过渡 */
+        .slides-container {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slides-container.no-transition {
+            transition: none;
+        }
+
+        /* 添加进入和离开动画 */
+        .text-slide.entering {
+            transform: scale(0.7) translateX(100%);
+        }
+
+        .text-slide.leaving {
+            transform: scale(0.7) translateX(-100%);
+        }
+
+        /* 优化指示器样式 */
+        .carousel-dots {
+            position: absolute;
+            bottom: clamp(12px, 3vh, 20px);
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: clamp(6px, 1vw, 10px);
+            z-index: 2;
+        }
+
+        .carousel-dot {
+            width: clamp(6px, 1.2vw, 8px);
+            height: clamp(6px, 1.2vw, 8px);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-dot::before {
+            content: '♥';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            color: rgba(216, 27, 96, 0.3);
+            font-size: clamp(10px, 1.5vw, 14px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .carousel-dot:hover::before {
+            color: rgba(216, 27, 96, 0.6);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .carousel-dot.active::before {
+            color: #d81b60;
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        /* 添加动画效果 */
+        @keyframes dotPulse {
+            0% { transform: translate(-50%, -50%) scale(1.2); }
+            50% { transform: translate(-50%, -50%) scale(1.4); }
+            100% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .carousel-dot.active::before {
+            animation: dotPulse 2.5s var(--spring-bounce) infinite;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .carousel-dots {
+                bottom: clamp(8px, 2vh, 15px);
+                gap: 5px;
+            }
+
+            .carousel-dot::before {
+                font-size: clamp(8px, 1.2vw, 12px);
+            }
+        }
+
+        /* 横屏优化 */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .text-carousel {
+                height: clamp(100px, 45vh, 140px);
+            }
+            
+            .text-slide .text-content {
+                gap: 5px;
+            }
+        }
+
+        /* 添加滑动提示动画 */
+        .text-carousel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            animation: shine 3s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            to {
+                left: 200%;
+            }
+        }
+
+        /* 设备适配优化 */
+        @media (max-width: 768px) {
+            .text-carousel {
+                height: 130px;
+                padding: 15px;
+            }
+
+            .text-slide .message {
+                font-size: 18px;
+            }
+
+            .text-slide .sub-text {
+                font-size: 13px;
+            }
+
+            .carousel-dot {
+                width: 6px;
+                height: 6px;
+            }
+
+            .carousel-dot.active {
+                width: 20px;
+            }
+        }
+
+        /* 触摸设备优化 */
+        @media (hover: none) {
+            .text-carousel:hover {
+                transform: none;
+                box-shadow: 0 8px 32px rgba(216, 27, 96, 0.12);
+            }
+        }
+
+        /* 添加页面载入动画 */
+        .page-transition {
+            opacity: 0;
+            animation: pageLoad 1s ease-out forwards;
+        }
+
+        @keyframes pageLoad {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化滑动动画 */
+        .text-carousel .text-slide {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 优化滑动容器 */
+        .slides-container {
+            display: flex;
+            height: 100%;
+            transform: translateZ(0);
+            will-change: transform;
+            touch-action: none;
+        }
+
+        /* 优化过渡效果 */
+        .slides-container.transitioning {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 添加波纹效果样式 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(216, 27, 96, 0.2);
+            transform: scale(0);
+            animation: ripple 1s linear;
+            pointer-events: none;
+            width: 100px;
+            height: 100px;
+            margin: -50px;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* 优化打字机光标效果 */
+        .memory-card.typing .message::after {
+            content: '|';
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 1.2em;
+            width: 2px;
+            background: #d81b60;
+            animation: blink 0.75s step-end infinite;
+        }
+
+        /* 修改底部文字样式 */
+        .footer-message {
+            margin: 40px 0 20px;
+            text-align: center;
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: #d81b60;
+            font-weight: 500;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(216, 27, 96, 0.1);
+            animation: softGlow 3s infinite;
+            letter-spacing: 0.03em;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: footerEnter 1.2s var(--ease-out-expo) forwards;
+            animation-delay: 0.8s;
+            transition: all 0.8s var(--spring-bounce);
+        }
+
+        .footer-message:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(216, 27, 96, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        @keyframes softGlow {
+            0% { box-shadow: 0 4px 15px rgba(216, 27, 96, 0.1); }
+            50% { box-shadow: 0 4px 20px rgba(216, 27, 96, 0.2); }
+            100% { box-shadow: 0 4px 15px rgba(216, 27, 96, 0.1); }
+        }
+
+        @media screen and (max-width: 768px) {
+            .footer-message {
+                font-size: 16px;
+                margin: 30px 0 15px;
+                padding: 15px;
+            }
+        }
+
+        /* 优化页面过渡效果 */
+        @keyframes pageEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化照片卡片动画 */
+        @keyframes cardEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化计时器动画 */
+        @keyframes timerEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化底部文字动画 */
+        @keyframes footerEnter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 优化滚动时的动画 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1.2s var(--ease-out-expo);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 优化指示器动画 */
+        .carousel-dot {
+            transition: all 0.6s var(--spring-bounce);
+        }
+
+        .carousel-dot::before {
+            transition: all 0.6s var(--spring-bounce);
+        }
+
+        .carousel-dot.active::before {
+            animation: dotPulse 2.5s var(--spring-bounce) infinite;
+        }
+
+        /* 优化滑动过渡 */
+        .slides-container {
+            transition: transform 1.2s var(--ease-out-expo);
+        }
+
+        /* 减少动画模式 */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* 优化花瓣容器 */
+        .petals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            overflow: visible;
+            transform: translateZ(0);
+        }
+
+        /* 优化花瓣样式 */
+        .petal {
+            position: absolute;
+            border-radius: 150% 0 150% 0;
+            z-index: 1;
+            top: -10px;
+            transform-origin: center;
+            pointer-events: none;
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            animation: falling linear forwards;
+        }
+
+        @keyframes falling {
+            0% {
+                transform: translate3d(0, -10%, 0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            85% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate3d(100px, 150vh, 0) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="petals-container"></div>
+    <script>
+        // 根据屏幕分辨率计算最佳花瓣数量
+        function calculatePetalCount() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const screenArea = width * height;
+            
+            // 基础配置
+            const config = {
+                minPetals: 15,    // 最小花瓣数
+                maxPetals: 40,    // 最大花瓣数
+                baseArea: 1920 * 1080,  // 基准分辨率面积
+                density: 0.000025  // 每像素花瓣密度
+            };
+
+            // 根据屏幕面积计算合适的花瓣数量
+            let count = Math.floor(screenArea * config.density);
+            
+            // 确保在合理范围内
+            count = Math.max(config.minPetals, Math.min(count, config.maxPetals));
+            
+            // 移动设备优化
+            if (width <= 768) {
+                count = Math.floor(count * 0.7); // 移动端减少30%花瓣
+            }
+
+            return count;
+        }
+
+        // 优化花瓣生成间隔
+        function calculateInterval() {
+            const width = window.innerWidth;
+            if (width <= 480) {
+                return 400;  // 小屏手机
+            } else if (width <= 768) {
+                return 300;  // 平板
+            } else if (width <= 1024) {
+                return 250;  // 小屏电脑
+            } else {
+                return 200;  // 大屏设备
+            }
+        }
+
+        function createPetal() {
+            const container = document.querySelector('.petals-container');
+            if (!container) return;
+
+            const petal = document.createElement('div');
+            petal.className = 'petal';
+            
+            // 随机大小
+            const size = Math.random() * 8 + 5;
+            petal.style.width = `${size}px`;
+            petal.style.height = `${size}px`;
+            
+            // 随机起始位置
+            petal.style.left = `${Math.random() * 100}vw`;
+            
+            // 计算动画时间（基于视窗高度）
+            const viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+            const baseDuration = viewportHeight / 100; // 每100px高度1秒
+            const minDuration = Math.max(6, baseDuration);
+            const maxDuration = Math.max(10, baseDuration * 1.5);
+            const duration = Math.random() * (maxDuration - minDuration) + minDuration;
+            
+            petal.style.animationDuration = `${duration}s`;
+            
+            // 随机透明度
+            petal.style.opacity = Math.random() * 0.4 + 0.6;
+            
+            // 柔和的粉色系
+            const colors = [
+                'rgba(255,192,203,0.8)',
+                'rgba(255,182,193,0.8)',
+                'rgba(255,209,220,0.8)',
+                'rgba(255,204,213,0.8)'
+            ];
+            petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+            
+            // 添加阴影效果
+            petal.style.filter = 'drop-shadow(0 0 2px rgba(255,192,203,0.3))';
+            
+            // 确保动画完成后再移除
+            const removeAfterAnimation = (e) => {
+                if (e.animationName === 'falling') {
+                    setTimeout(() => {
+                        if (container.contains(petal)) {
+                            petal.remove();
+                        }
+                    }, 100);
+                }
+            };
+
+            petal.addEventListener('animationend', removeAfterAnimation);
+            
+            // 添加安全移除机制
+            const safetyTimeout = setTimeout(() => {
+                if (container.contains(petal)) {
+                    petal.remove();
+                }
+                petal.removeEventListener('animationend', removeAfterAnimation);
+            }, (duration * 1000) + 1000);
+
+            // 如果页面隐藏，清除超时
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearTimeout(safetyTimeout);
+                }
+            });
+
+            container.appendChild(petal);
+        }
+
+        function startPetalAnimation() {
+            if (window.petalInterval) {
+                clearInterval(window.petalInterval);
+            }
+
+            // 初始化花瓣
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createPetal, i * 300);
+            }
+
+            // 持续创建花瓣
+            window.petalInterval = setInterval(() => {
+                const container = document.querySelector('.petals-container');
+                if (container && container.children.length < 30) {
+                    createPetal();
+                }
+            }, window.innerWidth <= 768 ? 400 : 300);
+        }
+
+        // 添加防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 优化窗口调整时的处理
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const container = document.querySelector('.petals-container');
+                if (container) {
+                    // 平滑移除现有花瓣
+                    Array.from(container.children).forEach(petal => {
+                        petal.style.opacity = '0';
+                        setTimeout(() => petal.remove(), 500);
+                    });
+                    // 重新开始动画
+                    setTimeout(startPetalAnimation, 600);
+                }
+            }, 300);
+        });
+
+        // 页面不可见时暂停动画
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(window.petalInterval);
+                const container = document.querySelector('.petals-container');
+                if (container) {
+                    container.innerHTML = '';
+                }
+            } else {
+                startPetalAnimation();
+            }
+        });
+
+        // 初始化花瓣系统
+        function initPetalSystem() {
+            const container = document.querySelector('.petals-container') || 
+                document.createElement('div');
+            container.className = 'petals-container';
+            if (!container.parentElement) {
+                document.body.insertBefore(container, document.body.firstChild);
+            }
+            return container;
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initPetalSystem();
+            startPetalAnimation();
+        });
+    </script>
+    <div class="container">
+        <h1>我们的爱情纪念</h1>
+        
+        <div class="photo-card">
+            <div class="title">我们在一起的照片</div>
+            <img src="image1.JPG" alt="我们在一起的照片">
+            <div class="caption">
+                <p class="message">
+                    <span class="heart">♥</span>
+                    亲爱的，这是我们在一起的第 <span id="days">0</span> 天
+                    <span class="heart">♥</span>
+                </p>
+                <p class="date">自 2024 年 12 月 26 日</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="memory-card">
+            <div class="message-container">
+                <p class="message">每一个与你在一起的瞬间，都是上天赐予的礼物</p>
+            </div>
+        </div>
+
+        <div class="photo-card">
+            <img src="image2.JPG" alt="一起度过的美好时光">
+            <div class="caption">
+                <p class="message">每一天都如糖果一样甜</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="text-carousel">
+            <div class="slides-container">
+                <!-- 克隆最后一张到开头 -->
+                <div class="text-slide clone">
+                    <div class="text-content">
+                        <p class="message">距离从未阻挡爱意，它只是为了让我们更懂珍惜</p>
+                        <p class="sub-text">期待与你相拥的那一天</p>
+                    </div>
+                </div>
+                
+                <!-- 主要幻灯片 -->
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">你的一句晚安，总是我最甜的依赖</p>
+                        <p class="sub-text">愿每个清晨与夜晚，都有你相伴</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">即使隔着屏幕，我依然感受到你的温暖</p>
+                        <p class="sub-text">爱，从未因为距离而遥远</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">在茫茫人海中，遇见你是我最大的幸运</p>
+                        <p class="sub-text">从此，生活变得温柔且美好</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">你是我心里最柔软的存在</p>
+                        <p class="sub-text">每一次想起，都觉得温暖</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">即使未来有风雨，我也会陪着你一起走过</p>
+                        <p class="sub-text">你永远不会独自面对</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">我愿意用每一天的行动告诉你</p>
+                        <p class="sub-text">你是我心中最重要的人</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">我们的故事虽然从网络开始</p>
+                        <p class="sub-text">但爱已深藏于心，无惧距离</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">你让我明白，什么叫做心安</p>
+                        <p class="sub-text">只要是你，生活的每一刻都甜蜜</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">只要想起你，我的世界就变得温暖</p>
+                        <p class="sub-text">因为你是我的阳光</p>
+                    </div>
+                </div>
+                <div class="text-slide">
+                    <div class="text-content">
+                        <p class="message">距离从未阻挡爱意，它只是为了让我们更懂珍惜</p>
+                        <p class="sub-text">期待与你相拥的那一天</p>
+                    </div>
+                </div>
+                
+                <!-- 克隆第一张到结尾 -->
+                <div class="text-slide clone">
+                    <div class="text-content">
+                        <p class="message">你的一句晚安，总是我最甜的依赖</p>
+                        <p class="sub-text">愿每个清晨与夜晚，都有你相伴</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 更新指示器数量 -->
+            <div class="carousel-dots">
+                <span class="carousel-dot active" aria-label="第1页"></span>
+                <span class="carousel-dot" aria-label="第2页"></span>
+                <span class="carousel-dot" aria-label="第3页"></span>
+                <span class="carousel-dot" aria-label="第4页"></span>
+                <span class="carousel-dot" aria-label="第5页"></span>
+                <span class="carousel-dot" aria-label="第6页"></span>
+                <span class="carousel-dot" aria-label="第7页"></span>
+                <span class="carousel-dot" aria-label="第8页"></span>
+                <span class="carousel-dot" aria-label="第9页"></span>
+                <span class="carousel-dot" aria-label="第10页"></span>
+            </div>
+        </div>
+
+        <div class="timer">
+            <span>我们已经在一起</span>
+            <div class="time">
+                <span id="day">0</span> 天 
+                <span id="hour">0</span> 小时 
+                <span id="minute">0</span> 分钟
+                <span id="second">0</span> 秒
+            </div>
+        </div>
+
+        <div class="footer-message">
+            期待与你一起续写我们的故事
+        </div>
+    </div>
+
+    <script>
+        // 计算在一起的天数
+        const startDate = new Date(2024, 11, 26, 20, 30, 0);
+        const today = new Date();
+        const timeDiff = today - startDate;
+        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        document.getElementById('days').textContent = days;
+
+        function timer() {
+            var start = new Date(2024, 11, 26, 20, 54, 36);
+            var now = new Date();
+            var diff = now.getTime() - start.getTime();
+            
+            var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            document.getElementById('day').innerHTML = days;
+            document.getElementById('hour').innerHTML = hours;
+            document.getElementById('minute').innerHTML = minutes;
+            document.getElementById('second').innerHTML = seconds;
+        }
+        
+        timer();
+        setInterval(timer, 1000);
+
+        // 优化动画性能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加页面载入类
+            document.body.classList.add('page-transition');
+
+            // 优化滚动时的动画
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                if (scrollTimeout) {
+                    window.cancelAnimationFrame(scrollTimeout);
+                }
+                scrollTimeout = window.requestAnimationFrame(function() {
+                    // 处理滚动时的动画
+                });
+            }, { passive: true });
+
+            // 检测设备性能，调整动画
+            if ('matchMedia' in window) {
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+                if (prefersReducedMotion.matches) {
+                    // 减少或禁用动画
+                    document.body.classList.add('reduce-motion');
+                }
+            }
+        });
+
+        function initCarousel() {
+            const carousel = document.querySelector('.text-carousel');
+            const container = carousel.querySelector('.slides-container');
+            const slides = carousel.querySelectorAll('.text-slide');
+            const dots = carousel.querySelectorAll('.carousel-dot');
+            let currentIndex = 1;
+            let startX = 0;
+            let currentX = 0;
+            let isDragging = false;
+            let startTime = 0;
+            let autoPlayInterval;
+
+            function updateSlides(transition = true) {
+                if (!transition) {
+                    container.style.transition = 'none';
+                } else {
+                    container.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                }
+
+                const offset = -100 * currentIndex;
+                container.style.transform = `translateX(${offset}%)`;
+
+                // 移除所有活动状态
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+
+                // 减少延迟时间
+                setTimeout(() => {
+                    slides[currentIndex].classList.add('active');
+                }, transition ? 300 : 0);
+
+                // 更新指示器
+                const realIndex = currentIndex - 1;
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === realIndex);
+                });
+
+                if (!transition) {
+                    requestAnimationFrame(() => {
+                        container.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                    });
+                }
+            }
+
+            // 处理滑动开始
+            function handleDragStart(e) {
+                isDragging = true;
+                startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+                currentX = startX;
+                startTime = Date.now();
+                clearInterval(autoPlayInterval);
+                container.style.transition = 'none';
+            }
+
+            // 处理滑动过程
+            function handleDragMove(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+                currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+                const diff = currentX - startX;
+                const offset = -100 * currentIndex + (diff / carousel.offsetWidth) * 100;
+                container.style.transform = `translateX(${offset}%)`;
+            }
+
+            // 处理滑动结束
+            function handleDragEnd() {
+                if (!isDragging) return;
+                isDragging = false;
+                const diff = currentX - startX;
+                const duration = Date.now() - startTime;
+                const velocity = Math.abs(diff / duration);
+                const shouldSlide = Math.abs(diff) > carousel.offsetWidth * 0.1 || velocity > 0.5;
+
+                container.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+
+                if (shouldSlide) {
+                    slides[currentIndex].classList.remove('active');
+                    currentIndex += diff > 0 ? -1 : 1;
+                    updateSlides();
+                    handleInfiniteScroll();
+                } else {
+                    updateSlides();
+                }
+                
+                startAutoPlay();
+            }
+
+            // 处理无限滚动
+            function handleInfiniteScroll() {
+                setTimeout(() => {
+                    if (currentIndex === 0) {
+                        currentIndex = slides.length - 2;
+                        updateSlides(false);
+                    } else if (currentIndex === slides.length - 1) {
+                        currentIndex = 1;
+                        updateSlides(false);
+                    }
+                }, 400);
+            }
+
+            // 点击指示器跳转
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    if (isDragging) return;
+                    clearInterval(autoPlayInterval);
+                    
+                    // 移除当前活动状态
+                    slides[currentIndex].classList.remove('active');
+                    
+                    currentIndex = index + 1;
+                    updateSlides(true);
+                    handleInfiniteScroll();
+                    startAutoPlay();
+                });
+            });
+
+            // 自动播放
+            function startAutoPlay() {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(() => {
+                    slides[currentIndex].classList.remove('active');
+                    currentIndex++;
+                    updateSlides();
+                    handleInfiniteScroll();
+                }, 4000);
+            }
+
+            // 添加事件监听
+            carousel.addEventListener('touchstart', handleDragStart, { passive: true });
+            carousel.addEventListener('touchmove', handleDragMove, { passive: false });
+            carousel.addEventListener('touchend', handleDragEnd);
+            carousel.addEventListener('mousedown', handleDragStart);
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('mouseup', handleDragEnd);
+            carousel.addEventListener('mouseleave', handleDragEnd);
+
+            // 初始化
+            updateSlides();
+            startAutoPlay();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initCarousel);
+
+        // 添加观察器来触发动画
+        function initMemoryCardAnimation() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const card = entry.target;
+                        // 如果已经播放过动画，就不再触发
+                        if (!card.dataset.animated) {
+                            startTypingAnimation(card);
+                            // 标记已播放动画
+                            card.dataset.animated = 'true';
+                        }
+                    }
+                });
+            }, {
+                threshold: 0.5,
+                rootMargin: '0px'
+            });
+
+            function startTypingAnimation(card) {
+                const message = card.querySelector('.message');
+                const text = message.textContent;
+                
+                // 禁用点击交互直到动画完成
+                card.style.pointerEvents = 'none';
+                
+                card.classList.add('visible');
+                card.classList.add('typing');
+                message.textContent = '';
+                
+                let charIndex = 0;
+                const typingSpeed = 150; // 将打字速度从50ms改为150ms，使其更慢
+                
+                function typeText() {
+                    if (charIndex < text.length) {
+                        message.textContent += text[charIndex];
+                        charIndex++;
+                        setTimeout(typeText, typingSpeed);
+                    } else {
+                        // 动画完成后
+                        card.classList.remove('typing');
+                        card.classList.add('typed');
+                        // 启用点击交互
+                        card.style.pointerEvents = 'auto';
+                        
+                        // 添加点击波纹效果
+                        card.addEventListener('click', createRippleEffect);
+                    }
+                }
+
+                // 延迟开始打字效果
+                setTimeout(() => {
+                    typeText();
+                }, 800); // 将开始延迟也增加到800ms
+            }
+
+            // 添加点击波纹效果
+            function createRippleEffect(event) {
+                const card = event.currentTarget;
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                
+                const rect = card.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                card.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 1000);
+            }
+
+            const memoryCard = document.querySelector('.memory-card');
+            observer.observe(memoryCard);
+        }
+
+        // 防止内存泄漏
+        window.addEventListener('load', initMemoryCardAnimation, { once: true });
+
+        // 监听窗口大小变化，重新计算文本布局
+        window.addEventListener('resize', () => {
+            const message = document.querySelector('.memory-card .message');
+            if (message && message.parentElement.classList.contains('typed')) {
+                message.style.width = 'auto';
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 添加滚动动画
+            const observerOptions = {
+                threshold: 0.2,
+                rootMargin: '50px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.photo-card, .divider, .memory-card').forEach(el => {
+                el.classList.add('fade-in');
+                observer.observe(el);
+            });
+
+            // 优化数字变化动画
+            function animateValue(element, start, end, duration) {
+                const range = end - start;
+                const startTime = performance.now();
+                
+                function update(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    const value = Math.floor(start + range * easeOutExpo(progress));
+                    element.textContent = value;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                }
+                
+                requestAnimationFrame(update);
+            }
+
+            function easeOutExpo(x) {
+                return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
+            }
+        });
+    </script>
+</body>
+</html>
